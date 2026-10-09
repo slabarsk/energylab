@@ -1,21 +1,23 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('en-GB', {maximumFractionDigits:2, minimumFractionDigits:2}).format(n);
-const money = n => `${fmt(n)} ₺`;
+const symbols = {TRY: '₺', USD: '$', EUR: '€'};
+const money = (n, currency = $('currency').value) => `${symbols[currency] || symbols.TRY}${fmt(n)}`;
 const storageKey = 'energylab.history.v1';
 let history = [];
 try { const data = JSON.parse(localStorage.getItem(storageKey) || '[]'); if (Array.isArray(data)) history = data.filter(x => x && typeof x.name === 'string' && [x.power,x.hours,x.days,x.total,x.cost,x.time].every(Number.isFinite)).slice(0,10); } catch {}
 function values() {
   const ids = ['power','hours','rate','days'];
   if (!ids.every(id => $(id).value.trim() !== '' && $(id).checkValidity())) return null;
-  return Object.fromEntries(ids.map(id => [id, Number($(id).value)]));
+  return {...Object.fromEntries(ids.map(id => [id, Number($(id).value)])), currency: $('currency').value};
 }
 function calculate({power,hours,rate,days}) { const daily = power / 1000 * hours; return {daily,total:daily*days,cost:daily*days*rate}; }
 function update() {
  const v = values();
+ $('rate-unit').textContent = `${symbols[$('currency').value]}/kWh`;
  if (!v) { $('cost').textContent = '—'; $('daily').textContent = '—'; $('total').textContent = '—'; $('period-label').textContent = 'Enter valid values: 0–24 hours of use and a period of 1–366 days.'; ['val1','val7','val30','cost-a','cost-b','saving','saving-percent','compare-context'].forEach(id=>$(id).textContent='—'); ['bar1','bar7','bar30'].forEach(id=>$(id).style.width='0'); return; }
  const r = calculate(v);
- $('cost').innerHTML = `${fmt(r.cost)} <small>₺</small>`;
+ $('cost').innerHTML = `${fmt(r.cost)} <small>${symbols[v.currency]}</small>`;
  $('daily').innerHTML = `${fmt(r.daily)} <small>kWh</small>`;
  $('total').innerHTML = `${fmt(r.total)} <small>kWh</small>`;
  $('period-label').textContent = `For ${v.days} days of use`;
@@ -33,13 +35,14 @@ function update() {
 function renderHistory() {
  const list=$('history-list'); list.replaceChildren(); $('clear').disabled=history.length===0;
  if (!history.length) { const p=document.createElement('div'); p.className='empty'; p.textContent='No calculations yet. Calculate your first device and save it here.'; list.append(p); return; }
- history.forEach(item=>{ const row=document.createElement('div'); row.className='history-row'; const cells=[['strong',item.name],['span',`${fmt(item.power)} W · ${fmt(item.hours)} h/day · ${item.days} days`],['span',new Date(item.time).toLocaleDateString('en-GB')],['b',money(item.cost)]]; cells.forEach(([tag,text])=>{const el=document.createElement(tag);el.textContent=text;row.append(el);});list.append(row); });
+ history.forEach(item=>{ const row=document.createElement('div'); row.className='history-row'; const cells=[['strong',item.name],['span',`${fmt(item.power)} W · ${fmt(item.hours)} h/day · ${item.days} days`],['span',new Date(item.time).toLocaleDateString('en-GB')],['b',money(item.cost, item.currency || 'TRY')]]; cells.forEach(([tag,text])=>{const el=document.createElement(tag);el.textContent=text;row.append(el);});list.append(row); });
 }
 function persist() { try {localStorage.setItem(storageKey,JSON.stringify(history));return true;} catch {return false;} }
 $('energy-form').addEventListener('submit',event=>{event.preventDefault();const v=values();if(!v)return; const name=$('device').value.trim();if(!name){$('status').textContent='Enter a device name.';return;}history.unshift({...v,...calculate(v),name,time:Date.now()});history=history.slice(0,10);const saved=persist();renderHistory();$('status').textContent=saved?'✓ Calculation saved in this browser.':'Browser storage is unavailable; this record is kept only for this session.';});
 document.querySelectorAll('input').forEach(input=>input.addEventListener('input',()=>{update();$('status').textContent=''; if(['power','hours','device'].includes(input.id)) document.querySelectorAll('.presets button').forEach(b=>b.classList.remove('active'));}));
 document.querySelectorAll('.presets button').forEach(button=>button.addEventListener('click',()=>{$('power').value=button.dataset.w;$('hours').value=button.dataset.h;$('device').value=button.dataset.name;document.querySelectorAll('.presets button').forEach(b=>b.classList.toggle('active',b===button));$('status').textContent='';update();}));
 $('clear').addEventListener('click',()=>{history=[];const saved=persist();renderHistory();$('status').textContent=saved?'History cleared.':'Session history cleared; persistent storage is unavailable.';});
+$('currency').addEventListener('change', () => { update(); $('status').textContent = ''; });
 update();renderHistory();
 
 const themeButton = $('theme-toggle');

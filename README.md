@@ -21,4 +21,4 @@ No build step or backend is required. GitHub Pages serves the root of the `main`
 
 `Period cost = daily kWh × days × electricity rate`
 
-Power and price values are examples. Prices are in Turkish lira (TRY). Calculations assume constant power; actual consumption and tariffs may differ. Saved calculations stay in the user's browser. System fonts are used if Google Fonts is unavailable.
+Power and price values are examples. Choose Turkish lira (TRY, default), US dollars (USD), or euros (EUR). Enter the electricity rate in the selected currency; no exchange-rate conversion is performed. History retains the currency selected when each calculation was saved. Calculations assume constant power; actual consumption and tariffs may differ. Saved calculations stay in the user's browser. System fonts are used if Google Fonts is unavailable.
