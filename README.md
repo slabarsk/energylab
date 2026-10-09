@@ -1,24 +1,24 @@
 # EnergyLab
 
-Cihazların enerji tüketimini ve tahmini elektrik maliyetini hesaplayan, iki cihazı karşılaştıran mobil uyumlu web uygulaması.
+A responsive web app for estimating device energy use and electricity costs, with a side-by-side device comparison.
 
-## Özellikler
+## Features
 
-- Günlük ve dönemlik kWh tüketimi ve maliyet hesabı
-- Aynı kullanım koşullarında iki cihazın karşılaştırılması
-- Son 10 hesaplamanın tarayıcıda saklanması
-- Açıklamalı formüller ve örnek cihazlar
+- Daily and period energy consumption and cost estimates
+- Two-device comparison under the same usage conditions
+- Last 10 calculations saved in browser storage
+- Explained formulas and example devices
 
-## Çalıştırma
+## Run locally
 
-`index.html` dosyasını tarayıcıda açın veya bu klasörde `python3 -m http.server 8080` çalıştırın.
+Open `index.html` in a browser, or run `python3 -m http.server 8080` in this directory.
 
-Derleme veya sunucu tarafı servis gerektirmez. GitHub Pages için `main` dalının kök dizini yayınlanabilir.
+No build step or backend is required. GitHub Pages serves the root of the `main` branch.
 
-## Hesaplama
+## Calculations
 
-`Günlük kWh = güç (W) / 1000 × günlük saat`
+`Daily kWh = power (W) / 1000 × hours per day`
 
-`Dönem maliyeti = günlük kWh × gün × birim fiyat`
+`Period cost = daily kWh × days × electricity rate`
 
-Güç ve fiyatlar örnektir. Sabit güç varsayımı kullanılır; gerçek tüketim ve tarife farklılık gösterebilir. Veriler yalnızca kullanıcının tarayıcısında tutulur. Google Fonts erişilemezse sistem yazı tipi kullanılır.
+Power and price values are examples. Prices are in Turkish lira (TRY). Calculations assume constant power; actual consumption and tariffs may differ. Saved calculations stay in the user's browser. System fonts are used if Google Fonts is unavailable.
